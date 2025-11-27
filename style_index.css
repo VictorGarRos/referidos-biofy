@@ -1,19 +1,61 @@
+/* Fondo Hero */
 .hero {
   position: relative;
-  height: 100vh;
-  /* Ajustable: 100vh para pantalla completa */
-  background-image:
-    linear-gradient(to top, rgba(37, 91, 138, 0.8) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.8) 100%),
-    url("img/persona-que-prepara-un-paquete-de-cyber-monday.jpg");
+  background-image: url('img/regalos\ amazon.jpg');
+  /* tu fondo */
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  color: #fff;
+  min-height: 75vh;
+  padding-top: 100px;
+  /* 🔥 separación para que NO invada la navbar */
 }
+
+/* Oscurecer fondo */
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* Contenido */
+.hero-content {
+  position: relative;
+  z-index: 10;
+}
+
+/* 🔥 Textos más grandes pero controlados responsivamente */
+.hero-text {
+  font-size: clamp(1.8rem, 3vw, 3rem);
+  line-height: 1.3;
+}
+
+.hero-amount {
+  font-size: clamp(3rem, 12vw, 10rem);
+  font-weight: 1200;
+}
+
+.hero-sub {
+  font-size: clamp(1.5rem, 4vw, 3rem);
+  font-weight: 700;
+}
+
+.hero-legal {
+  font-size: clamp(0.9rem, 2vw, 1.3rem);
+  opacity: 0.9;
+}
+
 
 /* Quitar opacidad del nav */
 nav.navbar {
-  background-color: transparent !important;
+  background: linear-gradient(
+    to bottom,
+    rgba(100, 51, 233, 0.853) 0%,        /* Negro arriba */
+    rgba(0,0,0,0) 100%       /* Se desvanece abajo */
+  );
   position: fixed;
   width: 100%;
   top: 0;
@@ -58,19 +100,20 @@ nav.navbar {
 
 /* Contenedor general de pasos */
 .step-card {
-  background: #0b3d4f;          /* azul oscuro Biofy-style */
+  background: linear-gradient(to bottom, #345DBD, #0E1A3A);;
+  /* azul oscuro Biofy-style */
   border-radius: 16px;
   padding: 24px 22px 26px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 /* Efecto hover */
 .step-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 16px 35px rgba(0,0,0,0.35);
+  box-shadow: 0 16px 35px rgba(0, 0, 0, 0.35);
 }
 
 /* Número circular del paso */
@@ -109,7 +152,8 @@ nav.navbar {
 .video-fullwidth {
   position: relative;
   width: 100%;
-  height: 60vh; /* altura del video */
+  height: 60vh;
+  /* altura del video */
   overflow: hidden;
 }
 
@@ -119,12 +163,14 @@ nav.navbar {
   left: 50%;
   width: 100%;
   height: 100%;
-  object-fit: cover;  /* hace que el video cubra todo */
+  object-fit: cover;
+  /* hace que el video cubra todo */
   transform: translate(-50%, -50%);
 }
 
 @media (max-width: 768px) {
   .video-fullwidth {
-    height: 40vh; /* menos alto en móvil */
+    height: 40vh;
+    /* menos alto en móvil */
   }
 }
