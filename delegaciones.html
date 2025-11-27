@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="es">
+
+<head>
+  <meta charset="utf-8">
+  <title>Delegaciones</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Reutilizamos el mismo CSS que en comerciales/campañas -->
+  <link href="style_comerciales.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="com-page">
+    <!-- CABECERA -->
+    <header class="com-header mb-4">
+      <h1 class="com-title">Delegaciones</h1>
+      <p class="com-subtitle">
+        Crea y gestiona las delegaciones que podrán asignarse a los comerciales.
+      </p>
+    </header>
+
+    <!-- CARD FORMULARIO -->
+    <section class="card shadow-sm mb-4 com-card">
+      <div class="card-body">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div>
+            <h2 class="h5 mb-0">Crear / Editar delegación</h2>
+            <small class="text-muted">Define el nombre y el código postal de la delegación.</small>
+          </div>
+          <span id="estadoEdicionDel"
+                class="badge rounded-pill bg-warning-subtle text-warning-emphasis d-none">
+            Editando delegación...
+          </span>
+        </div>
+
+        <form id="delegacionForm" class="row g-3">
+          <div class="col-xl-6 col-lg-8">
+            <label class="form-label fw-semibold">Nombre</label>
+            <input type="text" id="nombreDel" class="form-control"
+                   placeholder="Ej: Córdoba" required>
+          </div>
+
+          <div class="col-xl-3 col-lg-4">
+            <label class="form-label fw-semibold">CP</label>
+            <input type="text" id="cpDel" class="form-control"
+                   placeholder="Ej: 14001" required>
+          </div>
+
+          <div class="col-12 d-flex flex-wrap gap-2 mt-2">
+            <button type="submit" id="btnGuardarDel" class="btn btn-primary px-4">
+              Guardar delegación
+            </button>
+            <button type="button" id="btnCancelarEdicionDel"
+                    class="btn btn-outline-secondary btn-sm d-none">
+              Cancelar edición
+            </button>
+          </div>
+        </form>
+
+      </div>
+    </section>
+
+    <!-- CARD TABLA -->
+    <section class="card shadow-sm com-card">
+      <div class="card-body">
+        <h2 class="h5 mb-3">Listado de delegaciones</h2>
+
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0" id="tablaDelegaciones">
+            <thead class="table-light">
+              <tr>
+                <th>Nombre</th>
+                <th>CP</th>
+                <th style="width: 170px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyDelegaciones"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Firebase SDK - MÓDULOS -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      onSnapshot,
+      query,
+      orderBy,
+      doc,
+      updateDoc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+    // >>>>> MISMA CONFIGURACIÓN QUE EN REFERIDOS <<<<<
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYxWe9Fk5u6iNltfTQKFl9NB1WJFsw2wk",
+      authDomain: "referidos-biofy.firebaseapp.com",
+      projectId: "referidos-biofy",
+      storageBucket: "referidos-biofy.firebasestorage.app",
+      messagingSenderId: "976417715238",
+      appId: "1:976417715238:web:fd6ccde09546887966e2e7",
+      measurementId: "G-PM4H5G51KT"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const delegacionesRef = collection(db, "delegaciones");
+
+    const formDel          = document.getElementById("delegacionForm");
+    const nombreDelInput   = document.getElementById("nombreDel");
+    const cpDelInput       = document.getElementById("cpDel");
+    const tbodyDel         = document.getElementById("tbodyDelegaciones");
+    const btnGuardarDel    = document.getElementById("btnGuardarDel");
+    const btnCancelDel     = document.getElementById("btnCancelarEdicionDel");
+    const estadoEdicionDel = document.getElementById("estadoEdicionDel");
+
+    let editingDelId = null;
+    const delegacionesCache = {};
+
+    // === RESET FORM ===
+    function resetFormDelegacion() {
+      formDel.reset();
+      editingDelId = null;
+      btnGuardarDel.textContent = "Guardar delegación";
+      btnCancelDel.classList.add("d-none");
+      estadoEdicionDel.classList.add("d-none");
+    }
+
+    btnCancelDel.addEventListener("click", resetFormDelegacion);
+
+    // === CREAR / EDITAR ===
+    formDel.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const nombre = nombreDelInput.value.trim();
+      const cp     = cpDelInput.value.trim();
+
+      if (!nombre || !cp) return;
+
+      try {
+        if (editingDelId) {
+          const refDoc = doc(db, "delegaciones", editingDelId);
+          await updateDoc(refDoc, { nombre, cp });
+        } else {
+          await addDoc(delegacionesRef, { nombre, cp });
+        }
+        resetFormDelegacion();
+      } catch (err) {
+        console.error("Error guardando delegación:", err);
+        alert("Error guardando delegación (ver consola).");
+      }
+    });
+
+    // === LISTAR EN TIEMPO REAL ===
+    const qDel = query(delegacionesRef, orderBy("nombre", "asc"));
+
+    onSnapshot(qDel, (snapshot) => {
+      tbodyDel.innerHTML = "";
+      Object.keys(delegacionesCache).forEach(k => delete delegacionesCache[k]);
+
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const id   = docSnap.id;
+        delegacionesCache[id] = data;
+
+        const tr = document.createElement("tr");
+        tr.dataset.id = id;
+        tr.innerHTML = `
+          <td>${data.nombre || ""}</td>
+          <td>${data.cp || ""}</td>
+          <td>
+            <button type="button"
+                    class="btn btn-outline-secondary btn-sm btn-edit-del">
+              Editar
+            </button>
+            <button type="button"
+                    class="btn btn-outline-danger btn-sm ms-1 btn-delete-del">
+              Borrar
+            </button>
+          </td>
+        `;
+        tbodyDel.appendChild(tr);
+      });
+    });
+
+    // === ACCIONES EDITAR / BORRAR ===
+    tbodyDel.addEventListener("click", async (e) => {
+      const btn = e.target.closest("button");
+      if (!btn) return;
+
+      const fila = btn.closest("tr");
+      if (!fila) return;
+
+      const id   = fila.dataset.id;
+      const data = delegacionesCache[id];
+      if (!id || !data) return;
+
+      // EDITAR
+      if (btn.classList.contains("btn-edit-del")) {
+        editingDelId = id;
+        nombreDelInput.value = data.nombre || "";
+        cpDelInput.value     = data.cp || "";
+
+        btnGuardarDel.textContent = "Guardar cambios";
+        btnCancelDel.classList.remove("d-none");
+        estadoEdicionDel.classList.remove("d-none");
+      }
+
+      // BORRAR
+      if (btn.classList.contains("btn-delete-del")) {
+        const ok = confirm("¿Seguro que quieres borrar esta delegación?");
+        if (!ok) return;
+
+        try {
+          await deleteDoc(doc(db, "delegaciones", id));
+          if (editingDelId === id) resetFormDelegacion();
+        } catch (err) {
+          console.error("Error borrando delegación:", err);
+          alert("Error borrando delegación (ver consola).");
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>

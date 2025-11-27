@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel de Referidos</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="style_referidos.css">
+</head>
+
+<body>
+
+  <div class="layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="user-avatar">B</div>
+        <div>
+          <div class="user-name">Dpto. Marketing</div>
+          <div class="user-role">Administrador</div>
+        </div>
+      </div>
+
+      <div class="sidebar-menu">
+        <!-- 🔹 Todo lo que tenga class="admin-only" se ocultará para comerciales -->
+
+        <div class="sidebar-section-title admin-only">Inicio</div>
+        <a href="#" class="sidebar-link admin-only">
+          <i class="fa-solid fa-gauge-high"></i> Panel general
+        </a>
+
+        <div class="sidebar-section-title admin-only">Marketing</div>
+        <a href="#" class="sidebar-link menu-link admin-only" data-page="campanas.html">
+          <i class="fa-solid fa-bullhorn"></i> Campañas
+        </a>
+
+        <div class="sidebar-section-title admin-only">Comerciales</div>
+        <a href="#" class="sidebar-link menu-link admin-only" data-page="comerciales.html">
+          <i class="fa-solid fa-bullhorn"></i> Comerciales
+        </a>
+
+        <div class="sidebar-section-title admin-only">Delegaciones</div>
+        <a href="#" class="sidebar-link menu-link admin-only" data-page="delegaciones.html">
+          <i class="fa-solid fa-bullhorn"></i> Delegaciones
+        </a>
+
+        <div class="sidebar-section-title">Afiliados</div>
+        <a href="#" class="sidebar-link admin-only">
+          <i class="fa-solid fa-users"></i> Lista de afiliados
+        </a>
+
+        <!-- enlace para volver a la vista de referidos -->
+        <a href="#" class="sidebar-link view-referidos menu-link active" data-view="referidos">
+          <i class="fa-solid fa-hand-holding-dollar"></i> Referidos / Comisiones
+        </a>
+
+        <div class="sidebar-section-title admin-only">Sistema</div>
+        <a href="#" class="sidebar-link admin-only">
+          <i class="fa-solid fa-gear"></i> Configuración
+        </a>
+      </div>
+
+      <div class="sidebar-section-title">Cuenta</div>
+      <a id="btnLogout" class="sidebar-link" style="cursor:pointer;">
+        <i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión
+      </a>
+
+      <div class="sidebar-footer">
+        © 2025 Biofy Affiliates
+      </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main">
+
+      <!-- Top bar / título -->
+      <div class="main-header d-flex justify-content-between align-items-end">
+        <div>
+          <h1>Panel de Referidos</h1>
+          <div class="text-muted small">
+            Última actualización: <span id="lastUpdate">–</span>
+          </div>
+        </div>
+
+        <!-- Botón nuevo referido -->
+        <button id="btnNuevoReferido" class="btn btn-success btn-sm">
+          <i class="fa-solid fa-plus"></i> Nuevo referido
+        </button>
+      </div>
+
+      <!-- Contenido -->
+      <div class="main-content">
+
+        <!-- ⬇️ TODO lo de referidos envuelto en #panel-referidos -->
+        <div id="panel-referidos">
+
+          <!-- Aviso -->
+          <div class="alert alert-warning alert-custom" role="alert">
+            <strong>Atención:</strong> Si no ves alguno de tus pedidos, es posible que no se haya registrado
+            correctamente. Revisa el estado del tracking o sincroniza de nuevo con tu plataforma.
+          </div>
+
+          <!-- Barra de filtros / acciones -->
+          <div class="toolbar mb-2 d-flex gap-2 flex-wrap">
+            <div class="input-group input-group-sm" style="max-width: 260px;">
+              <span class="input-group-text bg-white"><i class="fa-solid fa-magnifying-glass"></i></span>
+              <input type="text" class="form-control" placeholder="Buscar por referido, email o localidad..."
+                id="searchInput">
+            </div>
+
+            <select class="form-select form-select-sm" style="max-width: 160px;" id="statusFilter">
+              <option value="">Todos los estados</option>
+              <option value="approved">Aprobado</option>
+              <option value="pending">Pendiente</option>
+            </select>
+          </div>
+
+          <!-- Tabla de comisiones -->
+          <div class="table-responsive bg-white border rounded shadow-sm">
+            <table class="table table-hover mb-0">
+              <thead>
+                <tr>
+                  <th style="width:30px;">
+                    <input type="checkbox" class="form-check-input">
+                  </th>
+                  <th>Fecha</th>
+                  <th>Referido</th>
+                  <th>Referente</th>
+                  <th>Localidad</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Comercial</th>
+                  <th>Campaña</th>
+                  <th>Estado</th>
+                  <th style="width:120px;">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="commissionsTable">
+                <!-- Las filas se cargan dinámicamente desde Firebase -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <!-- ⬆️ FIN panel-referidos -->
+
+        <!-- IFRAME donde se cargarán comerciales.html / delegaciones.html -->
+        <iframe id="panel-iframe" style="display:none; width:100%; height:calc(100vh - 140px); border:none;"></iframe>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Modal Crear / Editar Referido -->
+  <div class="modal fade" id="modalNuevoReferido" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalReferidoLabel">Nuevo referido</h5>
+          <button class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <form id="formNuevoReferido">
+
+            <div class="mb-3">
+              <label class="form-label">Nombre del referido</label>
+              <input type="text" class="form-control" id="refNombre" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Referente</label>
+              <input type="text" class="form-control" id="refReferente">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Localidad</label>
+              <input type="text" class="form-control" id="refLocalidad" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="refEmail" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Teléfono</label>
+              <input type="text" class="form-control" id="refTelefono" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Comercial</label>
+              <select class="form-select" id="refComercial" required>
+                <option value="">Selecciona un comercial...</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Campaña</label>
+              <select class="form-select" id="refCampana" required>
+                <option value="">Selecciona una campaña...</option>
+              </select>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Estado</label>
+              <select class="form-select" id="refEstado">
+                <option value="approved">Aprobado</option>
+                <option value="pending" selected>Pendiente</option>
+              </select>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button class="btn btn-primary" id="btnGuardarReferido">Guardar</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Firebase + lógica -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+    import {
+      getAuth,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs,
+      addDoc,
+      serverTimestamp,
+      doc,
+      getDoc,
+      updateDoc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDYxWe9Fk5u6iNltfTQKFl9NB1WJFsw2wk",
+      authDomain: "referidos-biofy.firebaseapp.com",
+      projectId: "referidos-biofy",
+      storageBucket: "referidos-biofy.firebasestorage.app",
+      messagingSenderId: "976417715238",
+      appId: "1:976417715238:web:fd6ccde09546887966e2e7",
+      measurementId: "G-PM4H5G51KT"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ========= DESLOGUEAR =========
+    document.getElementById("btnLogout").addEventListener("click", async () => {
+      const confirmar = confirm("¿Seguro que quieres cerrar sesión?");
+      if (!confirmar) return;
+
+      try {
+        await signOut(auth);
+        sessionStorage.clear();
+        window.location.href = "login.html";
+      } catch (error) {
+        console.error("Error cerrando sesión:", error);
+        alert("No se pudo cerrar sesión");
+      }
+    });
+
+    // ========= ESPERAR A QUE AUTH DIGA QUIÉN ES EL USUARIO =========
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      iniciarPagina(user);
+    });
+
+    // ========= FUNCIÓN PRINCIPAL =========
+    async function iniciarPagina(user) {
+      const emailUsuario = user.email;
+      const role = sessionStorage.getItem("role") || "comercial";
+
+      // Sidebar: nombre / rol / inicial
+      const userNameEl = document.querySelector(".user-name");
+      const userRoleEl = document.querySelector(".user-role");
+      const userAvatarEl = document.querySelector(".user-avatar");
+
+      if (userNameEl) userNameEl.textContent = emailUsuario;
+      if (userRoleEl) userRoleEl.textContent = (role === "marketing" ? "Administrador" : "Comercial");
+      if (userAvatarEl) userAvatarEl.textContent = emailUsuario.charAt(0).toUpperCase();
+
+      if (role === "comercial") {
+        document.querySelectorAll(".admin-only").forEach(el => {
+          el.style.display = "none";
+        });
+      }
+
+      // ========= DOM =========
+      const tableBody = document.getElementById("commissionsTable");
+      const searchInput = document.getElementById("searchInput");
+      const statusFilter = document.getElementById("statusFilter");
+      const lastUpdateSpan = document.getElementById("lastUpdate");
+      const btnNuevoReferido = document.getElementById("btnNuevoReferido");
+      const btnGuardarReferido = document.getElementById("btnGuardarReferido");
+      const formNuevoReferido = document.getElementById("formNuevoReferido");
+      const selectComercial = document.getElementById("refComercial");
+      const selectCampana = document.getElementById("refCampana");
+      const modalElement = document.getElementById("modalNuevoReferido");
+      const modalNuevo = new bootstrap.Modal(modalElement);
+      const modalTitle = document.getElementById("modalReferidoLabel");
+
+      const inputNombre = document.getElementById("refNombre");
+      const inputReferente = document.getElementById("refReferente");
+      const inputLocalidad = document.getElementById("refLocalidad");
+      const inputEmail = document.getElementById("refEmail");
+      const inputTelefono = document.getElementById("refTelefono");
+      const inputEstado = document.getElementById("refEstado");
+
+      let referidos = [];
+      let comerciales = [];
+      let campanas = [];
+      let editingId = null;
+
+      // ========= CARGA DE DATOS =========
+      async function cargarReferidos() {
+        try {
+          const snap = await getDocs(collection(db, "referidos"));
+          referidos = [];
+          snap.forEach(docSnap => {
+            referidos.push({ id: docSnap.id, ...docSnap.data() });
+          });
+          pintarTabla();
+          actualizarFecha();
+        } catch (error) {
+          console.error("Error al cargar referidos:", error);
+        }
+      }
+
+      async function cargarComerciales() {
+        try {
+          const snap = await getDocs(collection(db, "comerciales"));
+          comerciales = [];
+          selectComercial.innerHTML = '<option value="">Selecciona un comercial...</option>';
+
+          snap.forEach(docSnap => {
+            const data = docSnap.data();
+            const nombre = data.nombre || "(sin nombre)";
+            comerciales.push({ id: docSnap.id, ...data });
+
+            const opt = document.createElement("option");
+            opt.value = docSnap.id;
+            opt.textContent = nombre;
+            selectComercial.appendChild(opt);
+          });
+
+          if (role === "comercial") {
+            const miComercial = comerciales.find(c => (c.email || "").toLowerCase() === emailUsuario.toLowerCase());
+            if (miComercial) selectComercial.value = miComercial.id;
+          }
+        } catch (error) {
+          console.error("Error cargando comerciales:", error);
+        }
+      }
+
+      async function cargarCampanas() {
+        try {
+          const snap = await getDocs(collection(db, "campanas"));
+          campanas = [];
+          selectCampana.innerHTML = '<option value="">Selecciona una campaña...</option>';
+
+          snap.forEach(docSnap => {
+            const data = docSnap.data();
+            const nombre = data.nombre || "(sin nombre)";
+            campanas.push({ id: docSnap.id, ...data });
+
+            const opt = document.createElement("option");
+            opt.value = docSnap.id;
+            opt.textContent = nombre;
+            selectCampana.appendChild(opt);
+          });
+        } catch (error) {
+          console.error("Error cargando campañas:", error);
+        }
+      }
+
+      // ========= TABLA =========
+      function pintarTabla() {
+        tableBody.innerHTML = "";
+
+        const textoFiltro = searchInput.value.toLowerCase();
+        const filtroEstado = statusFilter.value;
+
+        let misComercialIds = [];
+        if (role === "comercial" && comerciales.length) {
+          misComercialIds = comerciales
+            .filter(c => (c.email || "").toLowerCase() === emailUsuario.toLowerCase())
+            .map(c => c.id);
+        }
+
+        referidos
+          .filter(ref => {
+            const texto = `${ref.nombre || ""} ${ref.referente || ""} ${ref.email || ""} ${ref.localidad || ""} ${ref.comercialNombre || ""} ${ref.campanaNombre || ""}`.toLowerCase();
+            if (!texto.includes(textoFiltro)) return false;
+            if (filtroEstado && ref.estado !== filtroEstado) return false;
+
+            if (role === "marketing") return true;
+            if (role === "comercial") {
+              return misComercialIds.includes(ref.comercialId);
+            }
+            return true;
+          })
+          .forEach(ref => {
+            const tr = document.createElement("tr");
+
+            let fechaStr = "";
+            if (ref.fecha && ref.fecha.toDate) {
+              const f = ref.fecha.toDate();
+              fechaStr = f.toLocaleDateString("es-ES") + " " +
+                f.toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+            }
+
+            const estadoClass = ref.estado === "approved" ? "approved" : "pending";
+            const estadoTexto = ref.estado === "approved" ? "Aprobado" : "Pendiente";
+
+            // 🔹 Select de comerciales (solo marketing)
+            let comercialSelectHtml = "";
+            if (role === "marketing" && comerciales.length) {
+              const opciones = comerciales.map(c => {
+                const selected = c.id === ref.comercialId ? "selected" : "";
+                const nombre = c.nombre || "";
+                return `<option value="${c.id}" ${selected}>${nombre}</option>`;
+              }).join("");
+
+              comercialSelectHtml = `
+                <select class="form-select form-select-sm select-comercial" data-id="${ref.id}">
+                  ${opciones}
+                </select>
+              `;
+            }
+
+            // 🔹 Select de campañas (solo marketing)
+            let campanaSelectHtml = "";
+            if (role === "marketing" && campanas.length) {
+              const opcionesCamp = campanas.map(ca => {
+                const selected = ca.id === ref.campanaId ? "selected" : "";
+                const nombre = ca.nombre || "";
+                return `<option value="${ca.id}" ${selected}>${nombre}</option>`;
+              }).join("");
+
+              campanaSelectHtml = `
+                <select class="form-select form-select-sm select-campana" data-id="${ref.id}">
+                  ${opcionesCamp}
+                </select>
+              `;
+            }
+
+            // 🔹 Select para estado (solo marketing)
+            const estadoSelectHtml = `
+              <select class="form-select form-select-sm select-estado" data-id="${ref.id}">
+                <option value="approved" ${ref.estado === "approved" ? "selected" : ""}>Aprobado</option>
+                <option value="pending"  ${ref.estado === "pending" ? "selected" : ""}>Pendiente</option>
+              </select>
+            `;
+
+            tr.innerHTML = `
+              <td><input type="checkbox" class="form-check-input"></td>
+              <td>${fechaStr || "-"}</td>
+              <td>${ref.nombre || "-"}</td>
+              <td>${ref.referente || "-"}</td>
+              <td>${ref.localidad || "-"}</td>
+              <td>${ref.email || "-"}</td>
+              <td>${ref.telefono || "-"}</td>
+
+              <!-- COMERCIAL -->
+              <td>
+                ${role === "marketing"
+                ? comercialSelectHtml
+                : (ref.comercialNombre || "-")
+              }
+              </td>
+
+              <!-- CAMPAÑA -->
+              <td>
+                ${role === "marketing"
+                ? campanaSelectHtml
+                : (ref.campanaNombre || "-")
+              }
+              </td>
+
+              <!-- ESTADO -->
+              <td>
+                ${role === "marketing"
+                ? estadoSelectHtml
+                : `<span class="badge-status ${estadoClass}">${estadoTexto}</span>`
+              }
+              </td>
+
+              <td class="table-actions">
+                <button class="btn btn-outline-secondary btn-sm btn-edit" title="Editar" data-id="${ref.id}">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm btn-clone" title="Duplicar" data-id="${ref.id}">
+                  <i class="fa-solid fa-clone"></i>
+                </button>
+                <button class="btn btn-outline-danger btn-sm btn-delete" title="Eliminar" data-id="${ref.id}">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+
+              <td class="table-actions">
+                  ${
+                  role === "marketing"
+                    ? `
+                    <button class="btn btn-success btn-sm btn-whatsapp"
+                            title="Enviar cupón por WhatsApp"
+                            onclick="enviarCuponWhatsapp('${ref.telefono || ""}', 'AMZ-50EU-JUAN')">
+                      <i class="fa-brands fa-whatsapp"></i>
+                    </button>`
+                    : ""
+                }
+  
+              </td>
+            `;
+
+            tableBody.appendChild(tr);
+          });
+      }
+
+      function actualizarFecha() {
+        const ahora = new Date();
+        lastUpdateSpan.textContent = ahora.toLocaleString("es-ES");
+      }
+
+      // ========= EVENTOS DE BUSCADOR / FILTRO =========
+      searchInput.addEventListener("input", pintarTabla);
+      statusFilter.addEventListener("change", pintarTabla);
+
+      // ========= NUEVO REFERIDO =========
+      btnNuevoReferido.addEventListener("click", async () => {
+        formNuevoReferido.reset();
+        editingId = null;
+        modalTitle.textContent = "Nuevo referido";
+
+        await cargarComerciales();
+        await cargarCampanas();
+
+        if (role === "comercial") {
+          const miComercial = comerciales.find(
+            c => (c.email || "").toLowerCase() === emailUsuario.toLowerCase()
+          );
+          if (miComercial) {
+            selectComercial.value = miComercial.id;
+            selectComercial.disabled = true;   // 🔒 bloqueado para comerciales
+          }
+        } else {
+          selectComercial.disabled = false;    // marketing puede cambiarlo
+        }
+
+        modalNuevo.show();
+      });
+
+      // ========= GUARDAR REFERIDO (nuevo o edición) =========
+      btnGuardarReferido.addEventListener("click", async () => {
+        const nombre = inputNombre.value.trim();
+        const referente = inputReferente.value.trim();
+        const localidad = inputLocalidad.value.trim();
+        const email = inputEmail.value.trim();
+        const telefono = inputTelefono.value.trim();
+        const comercialId = selectComercial.value;
+        const campanaId = selectCampana.value;
+        const estado = inputEstado.value;
+
+        if (!nombre || !localidad || !email || !telefono || !comercialId || !campanaId) {
+          alert("Todos los campos son obligatorios.");
+          return;
+        }
+
+        const comercial = comerciales.find(c => c.id === comercialId) || {};
+        const comercialNombre = comercial.nombre || "";
+
+        const campana = campanas.find(ca => ca.id === campanaId) || {};
+        const campanaNombre = campana.nombre || "";
+
+        const payload = {
+          nombre,
+          referente,
+          localidad,
+          email,
+          telefono,
+          estado,
+          comercialId,
+          comercialNombre,
+          campanaId,
+          campanaNombre
+        };
+
+        try {
+          if (editingId) {
+            await updateDoc(doc(db, "referidos", editingId), payload);
+          } else {
+            await addDoc(collection(db, "referidos"), {
+              ...payload,
+              fecha: serverTimestamp()
+            });
+          }
+          modalNuevo.hide();
+          editingId = null;
+          await cargarReferidos();
+        } catch (error) {
+          console.error("Error guardando referido:", error);
+          alert("Error al guardar el referido.");
+        }
+      });
+
+      // ========= EDITAR / DUPLICAR / BORRAR DESDE LA TABLA =========
+      tableBody.addEventListener("click", async (e) => {
+        const btn = e.target.closest("button");
+        if (!btn) return;
+
+        const id = btn.dataset.id;
+        if (!id) return;
+
+        // EDITAR
+        if (btn.classList.contains("btn-edit")) {
+          try {
+            const snap = await getDoc(doc(db, "referidos", id));
+            if (!snap.exists()) return;
+
+            const data = snap.data();
+
+            inputNombre.value = data.nombre || "";
+            inputReferente.value = data.referente || "";
+            inputLocalidad.value = data.localidad || "";
+            inputEmail.value = data.email || "";
+            inputTelefono.value = data.telefono || "";
+            inputEstado.value = data.estado || "pending";
+
+            await cargarComerciales();
+            selectComercial.value = data.comercialId || "";
+
+            await cargarCampanas();
+            selectCampana.value = data.campanaId || "";
+
+            editingId = id;
+            modalTitle.textContent = "Editar referido";
+
+            if (role === "comercial") {
+              const miComercial = comerciales.find(
+                c => (c.email || "").toLowerCase() === emailUsuario.toLowerCase()
+              );
+              if (miComercial) {
+                selectComercial.value = miComercial.id;
+              }
+              selectComercial.disabled = true;   // 🔒 comercial no puede cambiarlo
+            } else {
+              selectComercial.disabled = false;  // marketing sí puede elegir otro
+            }
+
+            modalNuevo.show();
+          } catch (error) {
+            console.error(error);
+            alert("No se ha podido cargar el referido para editar.");
+          }
+        }
+
+        // DUPLICAR
+        if (btn.classList.contains("btn-clone")) {
+          try {
+            const snap = await getDoc(doc(db, "referidos", id));
+            if (!snap.exists()) return;
+
+            const data = snap.data();
+            const { fecha, ...rest } = data;
+
+            await addDoc(collection(db, "referidos"), {
+              ...rest,
+              fecha: serverTimestamp()
+            });
+
+            await cargarReferidos();
+          } catch (error) {
+            console.error(error);
+            alert("No se ha podido duplicar el referido.");
+          }
+        }
+
+        // BORRAR
+        if (btn.classList.contains("btn-delete")) {
+          const ok = confirm("¿Seguro que quieres eliminar este referido?");
+          if (!ok) return;
+
+          try {
+            await deleteDoc(doc(db, "referidos", id));
+            await cargarReferidos();
+          } catch (error) {
+            console.error(error);
+            alert("No se ha podido borrar el referido.");
+          }
+        }
+      });
+
+      // ========= CAMBIOS INLINE (solo marketing) =========
+      tableBody.addEventListener("change", async (e) => {
+        if (role !== "marketing") return; // solo admin puede usar inline
+
+        const target = e.target;
+        const id = target.dataset.id;
+        if (!id) return;
+
+        // CAMBIAR COMERCIAL
+        if (target.classList.contains("select-comercial")) {
+          const nuevoComercialId = target.value;
+          const comercial = comerciales.find(c => c.id === nuevoComercialId) || {};
+          const comercialNombre = comercial.nombre || "";
+
+          try {
+            await updateDoc(doc(db, "referidos", id), {
+              comercialId: nuevoComercialId,
+              comercialNombre
+            });
+
+            const r = referidos.find(r => r.id === id);
+            if (r) {
+              r.comercialId = nuevoComercialId;
+              r.comercialNombre = comercialNombre;
+            }
+          } catch (error) {
+            console.error("Error actualizando comercial:", error);
+            alert("No se ha podido actualizar el comercial.");
+          }
+        }
+
+        // CAMBIAR CAMPAÑA
+        if (target.classList.contains("select-campana")) {
+          const nuevaCampanaId = target.value;
+          const campana = campanas.find(ca => ca.id === nuevaCampanaId) || {};
+          const campanaNombre = campana.nombre || "";
+
+          try {
+            await updateDoc(doc(db, "referidos", id), {
+              campanaId: nuevaCampanaId,
+              campanaNombre
+            });
+
+            const r = referidos.find(r => r.id === id);
+            if (r) {
+              r.campanaId = nuevaCampanaId;
+              r.campanaNombre = campanaNombre;
+            }
+          } catch (error) {
+            console.error("Error actualizando campaña:", error);
+            alert("No se ha podido actualizar la campaña.");
+          }
+        }
+
+        // CAMBIAR ESTADO
+        if (target.classList.contains("select-estado")) {
+          const nuevoEstado = target.value;
+
+          try {
+            await updateDoc(doc(db, "referidos", id), {
+              estado: nuevoEstado
+            });
+
+            const r = referidos.find(r => r.id === id);
+            if (r) {
+              r.estado = nuevoEstado;
+            }
+          } catch (error) {
+            console.error("Error actualizando estado:", error);
+            alert("No se ha podido actualizar el estado.");
+          }
+        }
+      });
+
+      // ========= INICIO: cargar datos =========
+      await cargarComerciales();
+      await cargarCampanas();
+      await cargarReferidos();
+    }
+  </script>
+
+  <!-- JS iframe navegación -->
+  <script>
+    const panelReferidos = document.getElementById('panel-referidos');
+    const panelIframe = document.getElementById('panel-iframe');
+
+    const linksMenu = document.querySelectorAll('a.menu-link');
+    const linkReferidos = document.querySelector('a.view-referidos');
+
+    linksMenu.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const page = link.dataset.page;
+        if (!page) return;
+
+        panelReferidos.style.display = 'none';
+        panelIframe.style.display = 'block';
+        panelIframe.src = page;
+      });
+    });
+
+    if (linkReferidos) {
+      linkReferidos.addEventListener('click', (e) => {
+        e.preventDefault();
+        panelIframe.style.display = 'none';
+        panelReferidos.style.display = 'block';
+      });
+    }
+  </script>
+
+  <script>
+    function enviarCuponWhatsapp(phone, cupon) {
+      const mensaje = `¡Hola! 🎁 Aquí tienes tu cupón de Amazon: ${cupon}`;
+      const textoCodificado = encodeURIComponent(mensaje);
+      const url = `https://wa.me/${phone}?text=${textoCodificado}`;
+      window.open(url, '_blank');
+    }
+  </script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const iframe = document.getElementById("panel-iframe");
+      const menuLinks = document.querySelectorAll(".menu-link");
+
+      menuLinks.forEach(link => {
+        link.addEventListener("click", (e) => {
+          e.preventDefault();
+
+          const page = link.dataset.page;
+          if (page && iframe) {
+            iframe.src = page;
+          }
+
+          menuLinks.forEach(l => l.classList.remove("active"));
+          link.classList.add("active");
+        });
+      });
+    });
+  </script>
+
+</body>
+
+</html>

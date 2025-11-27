@@ -1,0 +1,130 @@
+.hero {
+  position: relative;
+  height: 100vh;
+  /* Ajustable: 100vh para pantalla completa */
+  background-image:
+    linear-gradient(to top, rgba(37, 91, 138, 0.8) 0%, rgba(0, 0, 0, 0.2) 50%, rgba(0, 0, 0, 0.8) 100%),
+    url("img/persona-que-prepara-un-paquete-de-cyber-monday.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: #fff;
+}
+
+/* Quitar opacidad del nav */
+nav.navbar {
+  background-color: transparent !important;
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+  z-index: 20;
+  padding-left: 60px !important;
+  padding-right: 60px !important;
+}
+
+/* Logo */
+.logo-img {
+  height: 42px;
+  /* Ajusta a tu gusto */
+  width: auto;
+}
+
+.logo-text {
+  font-size: 1.8rem;
+  color: #e50914;
+  letter-spacing: 1px;
+}
+
+.section-custom {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+.section-custom h2 {
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+}
+
+.section-custom p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.section-custom img {
+  max-height: 350px;
+  object-fit: cover;
+}
+
+/* Contenedor general de pasos */
+.step-card {
+  background: #0b3d4f;          /* azul oscuro Biofy-style */
+  border-radius: 16px;
+  padding: 24px 22px 26px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Efecto hover */
+.step-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 35px rgba(0,0,0,0.35);
+}
+
+/* Número circular del paso */
+.step-number {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2px solid #00d1ff;
+  color: #00d1ff;
+  font-weight: 700;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+/* Título y texto */
+.step-title {
+  font-size: 1.25rem;
+  margin-bottom: 10px;
+}
+
+.step-text {
+  font-size: 0.98rem;
+  color: #e5f6ff;
+}
+
+/* Ajustes responsivos */
+@media (max-width: 767.98px) {
+  .step-card {
+    text-align: left;
+  }
+}
+
+.video-fullwidth {
+  position: relative;
+  width: 100%;
+  height: 60vh; /* altura del video */
+  overflow: hidden;
+}
+
+.video-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* hace que el video cubra todo */
+  transform: translate(-50%, -50%);
+}
+
+@media (max-width: 768px) {
+  .video-fullwidth {
+    height: 40vh; /* menos alto en móvil */
+  }
+}
