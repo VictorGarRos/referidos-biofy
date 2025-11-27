@@ -21,7 +21,7 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="sidebar-header">
-        <div class="user-avatar">B</div>
+        <div class="user-avatar" style="background-color: white; color: rgb(77, 77, 181);">B</div>
         <div>
           <div class="user-name">Dpto. Marketing</div>
           <div class="user-role">Administrador</div>
@@ -51,14 +51,10 @@
           <i class="fa-solid fa-bullhorn"></i> Delegaciones
         </a>
 
-        <div class="sidebar-section-title">Afiliados</div>
-        <a href="#" class="sidebar-link admin-only">
-          <i class="fa-solid fa-users"></i> Lista de afiliados
-        </a>
-
+        <div class="sidebar-section-title">REFERIDOS</div>
         <!-- enlace para volver a la vista de referidos -->
         <a href="#" class="sidebar-link view-referidos menu-link active" data-view="referidos">
-          <i class="fa-solid fa-hand-holding-dollar"></i> Referidos / Comisiones
+          <i class="fa-solid fa-hand-holding-dollar"></i> Referidos
         </a>
 
         <div class="sidebar-section-title admin-only">Sistema</div>
@@ -73,7 +69,7 @@
       </a>
 
       <div class="sidebar-footer">
-        © 2025 Biofy Affiliates
+        © 2025 Biofy
       </div>
     </aside>
 
@@ -103,8 +99,8 @@
 
           <!-- Aviso -->
           <div class="alert alert-warning alert-custom" role="alert">
-            <strong>Atención:</strong> Si no ves alguno de tus pedidos, es posible que no se haya registrado
-            correctamente. Revisa el estado del tracking o sincroniza de nuevo con tu plataforma.
+            <strong>Atención:</strong> Si no ves alguno de tus referidos, es posible que no se haya registrado
+            correctamente. Si sigue el problema, ponte en contacto con el administrador (marketing@biofy.es).
           </div>
 
           <!-- Barra de filtros / acciones -->
@@ -523,16 +519,15 @@
               </td>
 
               <td class="table-actions">
-                  ${
-                  role === "marketing"
-                    ? `
+                  ${role === "marketing"
+                ? `
                     <button class="btn btn-success btn-sm btn-whatsapp"
                             title="Enviar cupón por WhatsApp"
                             onclick="enviarCuponWhatsapp('${ref.telefono || ""}', 'AMZ-50EU-JUAN')">
                       <i class="fa-brands fa-whatsapp"></i>
                     </button>`
-                    : ""
-                }
+                : ""
+              }
   
               </td>
             `;
