@@ -1,7 +1,7 @@
 /* Fondo Hero */
 .hero {
   position: relative;
-  background-image: url('img/regalos\ amazon.jpg');
+  background-image: url('img/amigos.jpg');
   /* tu fondo */
   background-size: cover;
   background-position: center;
@@ -18,24 +18,27 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 /* Contenido */
 .hero-content {
   position: relative;
   z-index: 10;
+  padding-left: 50px;
 }
 
 /* 🔥 Textos más grandes pero controlados responsivamente */
 .hero-text {
   font-size: clamp(1.8rem, 3vw, 3rem);
-  line-height: 1.3;
+  line-height: 1;
 }
 
 .hero-amount {
-  font-size: clamp(3rem, 12vw, 10rem);
-  font-weight: 1200;
+  color: #ffffff;
+  font-size: clamp(2.5rem, 10vw, 7rem);
+  line-height: 1;
+  margin: 10px 0;
 }
 
 .hero-sub {
@@ -53,7 +56,7 @@
 nav.navbar {
   background: linear-gradient(
     to bottom,
-    rgba(100, 51, 233, 0.853) 0%,        /* Negro arriba */
+    rgba(0, 0, 0, 0.853) 0%,        /* Negro arriba */
     rgba(0,0,0,0) 100%       /* Se desvanece abajo */
   );
   position: fixed;
@@ -142,6 +145,35 @@ nav.navbar {
   color: #e5f6ff;
 }
 
+
+.banner-big {
+  min-height: 220px;
+}
+
+.banner-small {
+  min-height: 150px;
+}
+
+@media (min-width: 992px) {
+  .banner-big {
+    min-height: 460px; /* 🔥 altura igual a 230px + 230px */
+  }
+  .banner-small {
+    min-height: 230px;
+  }
+}
+
+/* Imágenes */
+.banner-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+
+
+
 /* Ajustes responsivos */
 @media (max-width: 767.98px) {
   .step-card {
@@ -167,6 +199,7 @@ nav.navbar {
   /* hace que el video cubra todo */
   transform: translate(-50%, -50%);
 }
+
 
 @media (max-width: 768px) {
   .video-fullwidth {
